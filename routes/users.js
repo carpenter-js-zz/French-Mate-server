@@ -7,7 +7,6 @@ const router = express.Router();
 const User = require('../models/user');
 
 router.post('/', (req, res, next) => {
-    
   
 
   // --- VALIDATION --- \\
@@ -23,7 +22,7 @@ router.post('/', (req, res, next) => {
   }
 
   // Validate that everything is coming in as a String
-  const stringFields = ['username', 'password', 'fullname'];
+  const stringFields = ['username', 'password', 'firstName', 'lastName'];
   const nonStringField = stringFields.find(
     field => field in req.body && typeof req.body[field] !== 'string');
 
@@ -79,15 +78,17 @@ router.post('/', (req, res, next) => {
     return next(err);
   }
   console.log(req.body);
-  let { username, password, fullname } = req.body;
-  fullname = fullname.trim();
+  let { username, password, firstName, lastName } = req.body;
+  firstName = firstName.trim();
+  lastName = lastName.trim();
   
   return User.hashPassword(password)
     .then(digest => {
       const newUser = {
         username,
         password: digest,
-        fullname
+        firstName,
+        lastName
       };
       return User.create(newUser);
     })
