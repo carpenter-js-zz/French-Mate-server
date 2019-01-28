@@ -78,7 +78,7 @@ router.post('/', (req, res, next) => {
     err.status = 422;
     return next(err);
   }
-
+  console.log(req.body);
   let { username, password, fullname } = req.body;
   fullname = fullname.trim();
   

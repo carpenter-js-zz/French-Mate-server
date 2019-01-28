@@ -1,12 +1,24 @@
 'use strict';
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const passport = require('passport'); 
+
+// Security
+const localStrategy = require('./passport/local');
+passport.use(localStrategy);
+const jwtStrategy = require('./passport/jwt');
+passport.use(jwtStrategy);
+
 
 const { PORT, CLIENT_ORIGIN } = require('./config');
 const { dbConnect } = require('./db-mongoose');
 // const {dbConnect} = require('./db-knex');
+
+const usersRouter = require('./routes/users');
+const authRouter = require('./routes/auth');
 
 const app = express();
 
@@ -21,6 +33,13 @@ app.use(
     origin: CLIENT_ORIGIN
   })
 );
+
+// body parser
+app.use(express.json());
+
+// mounted routers
+app.use('/api/auth', authRouter);
+app.use('/api/users', usersRouter);
 
 // Custom 404 Not Found route handler
 app.use((req, res, next) => {
