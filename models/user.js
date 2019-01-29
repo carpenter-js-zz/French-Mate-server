@@ -7,6 +7,15 @@ const userSchema = new mongoose.Schema({
   lastName: String,
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true }
+  // score: [{
+  //   word: {
+  //     ref,
+  //     corect,
+  //     attempt,
+  //     M
+  //   },
+   
+  // }]  ---- one idea ----
 });
 
 userSchema.set('timestamps', true);
