@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   questions: [{
-    _id:  mongoose.Schema.Types.ObjectId,
+    // _id:  new mongoose.Schema.Types.ObjectId,
     englishWord: String,
     frenchWord: String,
     attempts: Number,
