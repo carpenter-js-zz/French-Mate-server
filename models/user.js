@@ -6,16 +6,20 @@ const userSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
   username: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
-  // score: [{
-  //   word: {
-  //     ref,
-  //     corect,
-  //     attempt,
-  //     M
-  //   },
-   
-  // }]  ---- one idea ----
+  password: { type: String, required: true },
+  questions: [{
+    _id:  mongoose.Schema.Types.ObjectId,
+    englishWord: String,
+    frenchWord: String,
+    attempts: Number,
+    correct: Number,
+    M: Number,
+    next: Number
+  }], 
+  head: {
+    type: Number,
+    default: 0
+  }
 });
 
 userSchema.set('timestamps', true);

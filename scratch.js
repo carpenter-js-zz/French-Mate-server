@@ -1,3 +1,19 @@
+// return User.create(newUser);
+// return new User({newUser}
+// if word schema: 
+// .then(user => QuestionCollection.find().then(questions =>
+// question: question.englishWord, answer: question.frenchword,
+// ---- refactor ----
+// .then(({user, questions}) => { 
+//   user.questions = questions.map((question, index) => ({
+//     next: index === questions.length - 1 ? null : index + 1,
+//     mValue: 1,
+//     correct: 0,
+//     incorrect:0
+//   }))
+//   user.save()
+// }))
+
 'use strict';
 
 const express = require('express');
@@ -78,6 +94,7 @@ router.post('/', (req, res, next) => {
     err.status = 422;
     return next(err);
   }
+  console.log(req.body);
   let { username, password, firstName, lastName } = req.body;
   firstName = firstName.trim();
   lastName = lastName.trim();
@@ -93,21 +110,16 @@ router.post('/', (req, res, next) => {
         lastName,
         questions
       };
-      return new User(newUser);
+      return new User({newUser});
     })
-    .then((newUser) => {
-      // console.log('questions:', questions);
-      newUser.questions = newUser.questions.map((question, index) => ({
+    .then(({newUser, questions}) => {
+      newUser.questions = questions.map((question, index) => ({
         next: index === questions.length - 1 ? null : index + 1,
         M: 1,
         correct: 0,
-        attempts: 0,
-        englishWord: question.englishWord,
-        frenchWord: question.frenchWord
-        // englishWord,
-        // frenchWord
+        attempts: 0
       }));
-      return newUser.save();
+      newUser.save();
     })  
     .then(result => {
       return res.location(`${req.originalUrl}/${result.id}`)
