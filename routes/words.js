@@ -23,7 +23,7 @@ router.get('/:id', (req, res, next) => {
 });
 
 router.put('/:id', (req, res, next) => {
-  let { userAnswer } = req.body;
+  let userAnswer = req.body.englishWord;
   let {id} = req.params;
 
   User.findOne({_id: id})
@@ -32,67 +32,39 @@ router.put('/:id', (req, res, next) => {
       let userObj = user.toJSON();
       let tempHead = userObj.head; // 0 
       let currentQuestion = userObj.questions[tempHead]; // A
-      console.log('userObj length:', userObj.questions.length - 1);
-      // for (let i = 0; i < userObj.questions.length - 1; i++) {
-      //   let question;
-      //   if (userAnswer === userObj.questions[i].englishWord) {
-      //     question = userObj.questions[i].englishWord;
-      //     // if ( userObj.questions[i].M >= userObj.questions.length) {
-      //     // console.log('---------///////////////////////English word is:', userObj.questions[i].englishWord);
-      //     // userObj.questions[i].M = 1;
-      //     // userObj.questions[i].attempts++;
-      //     // userObj.questions[i].correct++; 
-      //     //  } else {
-      //     console.log('---------///////////////////////English word is:', userObj.questions[i].englishWord);
-      //     userObj.questions[i].attempts = userObj.questions[i].attempts + 1;
-      //     userObj.questions[i].correct = userObj.questions[i].correct + 1;
-      //     userObj.questions[i].M = userObj.questions[i].M * 2;
-      //     // }
-          
-      //   } else {
-      //     userObj.questions[i].correct;
-      //     userObj.questions[i].attempts = userObj.questions[i].attempts + 1;
-      //     userObj.questions[i].M = 1;
-      //     // userObj.questions[i].next;
-      //     console.log('WRONG----------------------');
-      //   }
-      // }
 
       if (userAnswer === userObj.questions[tempHead].englishWord) {
-       
-        // if ( userObj.questions[tempHead].M >= userObj.questions.length) {
-        // console.log('---------///////////////////////English word is:', userObj.questions[tempHead].englishWord);
-        // userObj.questions[tempHead].M = 1;
-        // userObj.questions[tempHead].attempts++;
-        // userObj.questions[tempHead].correct++; 
-        //  } else {
-        console.log('---------///////////////////////English word is:', userObj.questions[tempHead].englishWord);
         userObj.questions[tempHead].attempts = userObj.questions[tempHead].attempts + 1;
         userObj.questions[tempHead].correct = userObj.questions[tempHead].correct + 1;
         userObj.questions[tempHead].M = userObj.questions[tempHead].M * 2;
-        // }
-        
       } else {
+        console.log('IN HERE');
+        console.log('userAnswer: ', userAnswer, 'correct answer', userObj.questions[tempHead].englishWord);
         userObj.questions[tempHead].correct;
         userObj.questions[tempHead].attempts = userObj.questions[tempHead].attempts + 1;
         userObj.questions[tempHead].M = 1;
-        // userObj.questions[i].next;
-        console.log('WRONG----------------------');
       }
 
+      // if (userObj.questions[tempHead].M > 8) {
+      //   console.log('----------------------------------userObj.questions[tempHead].M', userObj.questions[tempHead].M);
+      //   userObj.questions[tempHead].M = 1;
+      // }
 
-      console.log('user object after ifs', userObj);
+      let index = currentQuestion.M + tempHead;
+      if (index > user.questions.length - 1) {
+        index = user.questions.length - 1;
+      }
       userObj.head = currentQuestion.next; // 1
-      console.log('head is now:', userObj.head);
-      currentQuestion.next = userObj.questions[currentQuestion.M + tempHead].next; //A next = I
-      console.log('current question next is now:', currentQuestion.next);
-      userObj.questions[currentQuestion.M + tempHead].next = tempHead; 
-      console.log('the question current question is now following:', userObj.questions[currentQuestion.M +  tempHead].next);
+      currentQuestion.next = userObj.questions[index].next; //A next = I
+      userObj.questions[index].next = tempHead; 
       console.log('whole object after algo', userObj);
-      // console.log(user.save(userObj));
-      // return user;
-      return user.update(userObj);
-      
+
+      console.log(userObj.head);
+      if (userObj.head === null) {
+        userObj.head = 0;
+      }
+
+      return user.update(userObj);    
 
     })
     .then(result => {
