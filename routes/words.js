@@ -15,66 +15,65 @@ router.get('/:id', (req, res, next) => {
   User.findOne({ _id: id })
     .then(user => {
       let currentQuestion = user.questions[user.head];
-      res.json(currentQuestion);
+      res.json(currentQuestion); 
     })
     .catch(err => {
       next(err);
     });
 });
 
-router.put('/:id', (req, res) => {
-  let { attempts, correct, M, rightAnswer, englishWord, frenchWord} = req.body;
+router.put('/:id', (req, res, next) => {
+  let { userAnswer } = req.body;
   let {id} = req.params;
-  let toUpdate;
 
-  if (rightAnswer) { 
-    toUpdate = {
-      attempts: attempts + 1,
-      correct: correct + 1,
-      M: M * 2,
-      englishWord,
-      frenchWord,
-    };
-  } else {
-    toUpdate = {
-      attempts: attempts + 1,
-      correct,
-      M: 1,
-      englishWord,
-      frenchWord,
-    };
-  }
-
-  // ratings: [ { by: "ijk", rating: 4 } ]
-  //   { $set:
-  //     {
-  //       "ratings.0.rating": 2
-  //     }
-  //  }
-
-  let index = req.body.next - 1;
-  let update = { '$set': {} };
-
-  update['$set']['questions.'+index] = toUpdate;
- 
-  User.findOneAndUpdate({_id: id}, update)
+  User.findOne({_id: id})
     .then(user => { 
-      res.json(user);
-      // let tempHead = user.head;
-      //this is not what we want 
-      // let currentQuestion = user.questions[tempHead];
-      // console.log('currentQuestion', currentQuestion);
-      // let newLocation = currentQuestion.M;
-      // console.log('newLocation', newLocation);
-      // console.log('current quest.next', currentQuestion.next);
-      // user.head = currentQuestion.next;
-      // console.log('user.head', user.head);
-      // currentQuestion.next = user.question[newLocation].next;
-      // user.questions[newLocation].next = tempHead;
-    });
+      // A
+      let userObj = user.toJSON();
+      let tempHead = userObj.head; // 0 
+      let currentQuestion = userObj.questions[tempHead]; // A
+      let i;
+      for (i = 0; i < userObj.questions.length - 1; i++) {
+        if (userAnswer === userObj.questions[i].englishWord) {
+          if ( userObj.questions[i].M >= userObj.questions.length) {
+            userObj.questions[i].M = 1;
+            userObj.questions[i].attempts++;
+            userObj.questions[i].correct++;
+            userObj.questions[i].next = 1;
+          } else {
+            userObj.questions[i].attempts++;
+            userObj.questions[i].correct++;
+            userObj.questions[i].M = userObj.questions[i].M * 2;
+            userObj.questions[i].next = 1;
+          }
+          break;
+        } else {
+          userObj.questions[i].correct;
+          userObj.questions[i].attempts++;
+          userObj.questions[i].M = 1;
+          // userObj.questions[i].next;
+          break;
+        }
+      }
 
-  
+      userObj.head = currentQuestion.next; // 1
+      console.log('user.head', userObj.head);
 
+      currentQuestion.next = userObj.questions[currentQuestion.M].next; //A next = I
+
+      userObj.questions[currentQuestion.M].next = tempHead; 
+
+      console.log( 'currentQuestion.next', currentQuestion.next);
+      console.log('new current question previous now point at current', userObj.questions[currentQuestion.M].next);
+
+      return userObj;
+      
+
+    }).then(updatedObj => {
+      
+      return updatedObj.save();
+      // next();
+    }).catch(err => console.log(err));
 });
 
 module.exports = router;
